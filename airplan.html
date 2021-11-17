@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Airplan</title>
+
+	<style type="text/css">
+		td {
+		    height: 30px;
+		    background: #6e6eb9;
+		    padding: 10px 20px;
+		    width: 30px;
+		}
+		table {
+		    display: inline;
+		    margin-left: 22px;
+		}
+		.container {
+		    margin: 0 auto;
+		    width: 1000px;
+		    text-align: center;
+		}
+		.window{
+			background: green;
+		}
+		.center{
+			background: red;
+		}
+	</style>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+</head>
+<body>
+	<div class="container">
+		<form action="#" id="AirplanForm">
+			e. g : [[2,3], [4,4], [3,4]]
+			<input type="text" style=" width: 350px" required id="seating" placeholder=" Airplan seating plan 2D array e.g [ [3,2], [4,3], [2,3], [3,4] ]">
+			<input type="number" autocomplete="off" min="1"  required id="pessanger" placeholder="enter pessanger count" />
+			<button> GO </button>
+		</form>
+	</div>
+	<div id="app" class="container"></div>
+
+	<script type="text/javascript">
+		class Airplan {
+		  constructor(pessanger, seatingPlan) {
+		    this.pessanger = parseInt(pessanger);
+		    this.seatingPlan = seatingPlan;
+		    this.hightestROW = 0;
+		    this.counter = 0
+		  }
+		  bookSeats(){
+
+		  	for (let i = this.seatingPlan.length - 1; i >= 0; i--) {
+		  		if(this.seatingPlan[i][1] > this.hightestROW){
+		  			this.hightestROW = this.seatingPlan[i][1];
+		  		}
+		  	}
+
+		  	this.bookSeatType("aisle");
+		  	this.bookSeatType("window");
+		  	this.bookSeatType("center");
+		  }
+
+		  bookSeatType(type){
+		  	for (let i = 1; i < this.hightestROW + 1; i++) {
+				if(this.counter	 === this.pessanger) break;
+		  	  	const elm = $("table tr:nth-child(" + i + ")").find("."+type);
+		  	 	for (let j = 0; j < elm.length ; j++) {
+		  				elm[j].innerText = this.counter	+1;
+		  				this.counter	++;
+		  				if(this.counter	 === this.pessanger) break;
+		  		}
+		  		if(this.counter	 === this.pessanger) break;
+			}
+		  }
+
+		
+		  generateSeatingPlan() {
+		  	let output = "";
+			this.seatingPlan.forEach((seats, index) => {
+				output += "<table>";
+		  		let windowSeat = index !==0 ? "aisle" : "window";
+		  		let aisleSeat = (this.seatingPlan.length - 1 == index) ?  "window" : "aisle";
+		  		let centerSeat = "center";
+				for (let i = 0; i < seats[1]; i++) {
+					output +=  "<tr>";
+				  	for (let i = 0; i < seats[0]; i++) {
+				  		let className = centerSeat;
+				  		if(i == 0 ){
+				  			className = windowSeat;	
+				  		}else if(seats[0] - 1 == i){
+				  			className = aisleSeat;
+				  		}
+				  	  	output += "<td class='"+className+"'></td>";
+				  	}
+				  	output +=  "</tr>";
+				}
+				output +="</table>";
+			});
+			return output;
+		  }
+		}
+
+		
+
+		$("#AirplanForm").submit(function(){
+
+			const seating = $("#seating").val();
+			const pessanger = $("#pessanger").val();
+			try{
+				const airplan = new Airplan(pessanger, JSON.parse(seating));
+				const seatingPlan = airplan.generateSeatingPlan();
+				document.getElementById("app").innerHTML = seatingPlan; 
+				airplan.bookSeats();
+
+			}catch (objError){
+				alert("bad seating plan, please give 2D array");
+			}
+
+		});
+
+	</script>
+</body>
+</html>
